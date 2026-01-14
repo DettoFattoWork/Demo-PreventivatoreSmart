@@ -518,6 +518,25 @@ body.auth-hidden .main-content {
 
 /* Responsive */
 @media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+  
+  body {
+    padding: var(--space-12);
+  }
+  
+  .container {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .card, .section-card {
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
   .form-grid {
     grid-template-columns: 1fr;
   }
@@ -537,5 +556,13 @@ body.auth-hidden .main-content {
   
   .btn {
     width: 100%;
+  }
+  
+  .table-container {
+    max-width: 100%;
+  }
+  
+  .preset-demo-container {
+    flex-wrap: wrap;
   }
 }
