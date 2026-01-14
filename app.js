@@ -563,10 +563,8 @@ function caricaPresetServiziProfessionali() {
 }
 
 function nuovoPreventivo() {
-    if (vociPreventivo.length > 0) {
-        if (!confirm('Sei sicuro di voler creare un nuovo preventivo? I dati attuali verranno persi.')) {
-            return;
-        }
+    if (!confirm('Sei sicuro di voler creare un nuovo preventivo? I dati attuali verranno persi.')) {
+        return;
     }
     
     vociPreventivo = [];
