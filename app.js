@@ -843,16 +843,13 @@ async function generaPDF() {
         alert('Inserisci il nome del cliente');
         return;
     }
-    
+
     if (vociPreventivo.length === 0) {
         alert('Aggiungi almeno una voce al preventivo');
         return;
     }
-    
-    console.log('📄 Generazione PDF in corso...');
-    
+
     try {
-        // Crea contenitore per PDF
         const pdfContainer = document.createElement('div');
         pdfContainer.style.cssText = `
             position: absolute;
@@ -863,157 +860,46 @@ async function generaPDF() {
             font-family: Arial, sans-serif;
             color: #000;
         `;
-        
-        // Recupera dati
-        const nomeDitta = document.getElementById('nomeDitta').value;
-        const indirizzoAzienda = document.getElementById('indirizzoAzienda').value;
-        const telefonoAzienda = document.getElementById('telefonoAzienda').value;
-        const emailAzienda = document.getElementById('emailAzienda').value;
-        const partitaIva = document.getElementById('partitaIva').value;
+
         const numeroPreventivo = document.getElementById('numeroPreventivo').value;
         const titoloPreventivo = document.getElementById('titoloPreventivo').value || 'PREVENTIVO';
-        const indirizzoCliente = document.getElementById('indirizzoCliente').value;
-        const telefonoCliente = document.getElementById('telefonoCliente').value;
-        const emailCliente = document.getElementById('emailCliente').value;
-        const cfPivaCliente = document.getElementById('cfPivaCliente').value;
-        const notePreventivo = document.getElementById('notePreventivo').value;
-        const validita = document.getElementById('validita').value;
-        
-        let modalitaPagamento = document.getElementById('modalitaPagamento').value;
-        if (modalitaPagamento === 'custom') {
-            modalitaPagamento = document.getElementById('pagamentoCustom').value;
-        }
-        
-        // Formatta data
-        const dataInput = document.getElementById('dataPreventivo').value;
-        const dataObj = new Date(dataInput);
-        const opzioni = { year: 'numeric', month: 'long', day: 'numeric' };
-        const dataFormattata = dataObj.toLocaleDateString('it-IT', opzioni);
-        const luogoData = `Milano, ${dataFormattata}`;
-        
-        // Costruisci HTML del PDF
-        pdfContainer.innerHTML = `
-            <div style="margin-bottom: 30px; text-align: center;">
-                <img src="${BASE_URL}/assets/img/logo-dettofatto.png" style="max-width: 400px; height: auto; margin-bottom: 15px;" />
-                <p style="margin: 5px 0; font-size: 12px;">${indirizzoAzienda}</p>
-                <p style="margin: 5px 0; font-size: 12px;">Tel: ${telefonoAzienda} | Email: ${emailAzienda}</p>
-                <p style="margin: 5px 0; font-size: 12px;">P.IVA: ${partitaIva}</p>
-            </div>
-            
-            <div style="text-align: center; margin: 30px 0;">
-                <h2 style="font-size: 20px; color: #34A873; margin-bottom: 10px;">${titoloPreventivo}</h2>
-                <p style="font-size: 12px;">Preventivo N° ${numeroPreventivo}</p>
-                <p style="font-size: 12px;">${luogoData}</p>
-            </div>
-            
-            <div style="margin: 25px 0; padding: 15px; background: #f5f5f5; border-radius: 5px;">
-                <h3 style="font-size: 14px; margin-bottom: 10px; color: #34A873;">CLIENTE</h3>
-                <p style="margin: 3px 0; font-size: 12px;"><strong>${nomeCliente}</strong></p>
-                ${indirizzoCliente ? `<p style="margin: 3px 0; font-size: 11px;">${indirizzoCliente}</p>` : ''}
-                ${telefonoCliente ? `<p style="margin: 3px 0; font-size: 11px;">Tel: ${telefonoCliente}</p>` : ''}
-                ${emailCliente ? `<p style="margin: 3px 0; font-size: 11px;">Email: ${emailCliente}</p>` : ''}
-                ${cfPivaCliente ? `<p style="margin: 3px 0; font-size: 11px;">CF/P.IVA: ${cfPivaCliente}</p>` : ''}
-            </div>
-            
-            <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 11px;">
-                <thead>
-                    <tr style="background: #34A873; color: white;">
-                        <th style="padding: 8px; text-align: left; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">Descrizione</th>
-                        <th style="padding: 8px; text-align: center; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">Unità</th>
-                        <th style="padding: 8px; text-align: center; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">Dimensioni</th>
-                        <th style="padding: 8px; text-align: center; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">Quantità</th>
-                        <th style="padding: 8px; text-align: right; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">Prezzo Unit. (€)</th>
-                        <th style="padding: 8px; text-align: right; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">Importo Totale (€)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${vociPreventivo.map(voce => `
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">${voce.descrizione}</td>
-                            <td style="padding: 8px; text-align: center; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">${voce.unitaMisura}</td>
-                            <td style="padding: 8px; text-align: center; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">${voce.dimensioni}</td>
-                            <td style="padding: 8px; text-align: center; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">${voce.quantita}</td>
-                            <td style="padding: 8px; text-align: right; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">${formatCurrency(voce.prezzoUnitario)}</td>
-                            <td style="padding: 8px; text-align: right; border: 1px solid #ddd; word-wrap: break-word; white-space: normal;">${formatCurrency(voce.importo)}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-            
-            <div style="margin: 25px 0; text-align: right; font-size: 13px;">
-                <p style="margin: 8px 0;"><strong>Totale Imponibile: ${document.getElementById('totaleImponibile').textContent}</strong></p>
-                ${document.getElementById('includiIva').checked ? `
-                    <p style="margin: 8px 0;"><strong>IVA ${document.getElementById('labelPercentualeIva').textContent}%: ${document.getElementById('totaleIva').textContent}</strong></p>
-                ` : ''}
-                <p style="margin: 12px 0; font-size: 16px; color: #34A873;"><strong>TOTALE FINALE: ${document.getElementById('totaleFinale').textContent}</strong></p>
-            </div>
-            
-            <div style="margin: 25px 0; padding: 15px; background: #f9f9f9; border-left: 3px solid #34A873; font-size: 11px;">
-                <p style="margin: 5px 0;"><strong>Modalità di Pagamento:</strong> ${modalitaPagamento}</p>
-                <p style="margin: 5px 0;"><strong>Validità:</strong> ${validita} giorni</p>
-                ${notePreventivo ? `<p style="margin: 10px 0 5px 0;"><strong>Note:</strong></p><p style="margin: 5px 0;">${notePreventivo}</p>` : ''}
-            </div>
-            
-            <div style="margin-top: 50px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-start;">
-                <div style="text-align: left; margin-top: 50px;">
-                    <div style="border-bottom: 1px solid #000; width: 200px; margin-bottom: 4px;"></div>
-                    <p style="margin: 0; font-size: 11px;">Firma per presa visione ed accettazione</p>
-                </div>
-                <div style="text-align: right; margin-top: 20px;">
-                    <img src="${BASE_URL}/assets/img/timbro-dettofatto.png" style="max-width: 180px; height: auto;" />
-                </div>
-            </div>
-        `;
-        
+
+        pdfContainer.innerHTML = document.getElementById('anteprimaHTML').innerHTML;
         document.body.appendChild(pdfContainer);
-        
-        // Genera PDF con html2canvas e jsPDF
+
         const canvas = await html2canvas(pdfContainer, {
             scale: 2,
             useCORS: true,
             logging: false
         });
-        
+
         const imgData = canvas.toDataURL('image/png');
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
-        
-        const imgWidth = 210;
+
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const imgWidth = pageWidth;
         const imgHeight = canvas.height * imgWidth / canvas.width;
-        
-const imgData = canvas.toDataURL('image/png');
-const { jsPDF } = window.jspdf;
 
-const pdf = new jsPDF('p', 'mm', 'a4');
+        let heightLeft = imgHeight;
+        let position = 0;
 
-const pageWidth = 210;
-const pageHeight = 297;
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
 
-const imgWidth = pageWidth;
-const imgHeight = canvas.height * imgWidth / canvas.width;
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
 
-let heightLeft = imgHeight;
-let position = 0;
+        pdf.save(`Preventivo_${numeroPreventivo}_${nomeCliente.replace(/\s+/g, '_')}.pdf`);
 
-// Prima pagina
-pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-heightLeft -= pageHeight;
-
-// Pagine successive
-while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-}
-
-pdf.save(`Preventivo_${numeroPreventivo}_${nomeCliente.replace(/\s+/g, '_')}.pdf`);
-        
         document.body.removeChild(pdfContainer);
-        
-        console.log('✅ PDF generato con successo!');
         alert('PDF generato con successo!');
-        
+
     } catch (error) {
         console.error('Errore generazione PDF:', error);
         alert('Errore durante la generazione del PDF. Riprova.');
