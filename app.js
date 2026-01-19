@@ -849,6 +849,17 @@ async function generaPDF() {
         return;
     }
 
+    const elNumeroPreventivo = document.getElementById('numeroPreventivo');
+    const elTitoloPreventivo = document.getElementById('titoloPreventivo');
+    const elTotaleImponibile = document.getElementById('totaleImponibile');
+    const elTotaleFinale = document.getElementById('totaleFinale');
+
+    if (!elNumeroPreventivo || !elTotaleImponibile || !elTotaleFinale) {
+        console.error("Elemento PDF non trovato nel DOM");
+        alert("Errore: contenuto PDF non disponibile.");
+        return;
+    }
+
     try {
         const pdfContainer = document.createElement('div');
         pdfContainer.style.cssText = `
@@ -861,10 +872,47 @@ async function generaPDF() {
             color: #000;
         `;
 
-        const numeroPreventivo = document.getElementById('numeroPreventivo').value;
-        const titoloPreventivo = document.getElementById('titoloPreventivo').value || 'PREVENTIVO';
+        const numeroPreventivo = elNumeroPreventivo.value;
+        const titoloPreventivo = elTitoloPreventivo ? elTitoloPreventivo.value || 'PREVENTIVO' : 'PREVENTIVO';
+        const totaleImponibile = elTotaleImponibile.textContent;
+        const totaleFinale = elTotaleFinale.textContent;
 
-        pdfContainer.innerHTML = document.getElementById('anteprimaHTML').innerHTML;
+        let righe = '';
+        vociPreventivo.forEach(voce => {
+            righe += `
+                <tr>
+                    <td>${voce.descrizione}</td>
+                    <td>${voce.unitaMisura}</td>
+                    <td>${voce.dimensioni}</td>
+                    <td>${voce.quantita}</td>
+                    <td>${formatCurrency(voce.prezzoUnitario)}</td>
+                    <td>${formatCurrency(voce.importo)}</td>
+                </tr>
+            `;
+        });
+
+        pdfContainer.innerHTML = `
+            <h2>${titoloPreventivo}</h2>
+            <p>Preventivo n° ${numeroPreventivo}</p>
+
+            <table border="1" cellspacing="0" cellpadding="6" width="100%">
+                <thead>
+                    <tr>
+                        <th>Descrizione</th>
+                        <th>U.M.</th>
+                        <th>Dimensioni</th>
+                        <th>Qtà</th>
+                        <th>Prezzo</th>
+                        <th>Importo</th>
+                    </tr>
+                </thead>
+                <tbody>${righe}</tbody>
+            </table>
+
+            <p><strong>Totale imponibile:</strong> ${totaleImponibile}</p>
+            <p><strong>Totale finale:</strong> ${totaleFinale}</p>
+        `;
+
         document.body.appendChild(pdfContainer);
 
         const canvas = await html2canvas(pdfContainer, {
